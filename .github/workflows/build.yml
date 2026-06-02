@@ -52,7 +52,7 @@ jobs:
         shell: bash
         working-directory: goast
         run: |
-          build.sh
+          ./build.sh
       - name: Archive libgoast library (${{ matrix.target.arch }})
         uses: actions/upload-artifact@v4
         with:
