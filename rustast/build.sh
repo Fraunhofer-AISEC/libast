@@ -7,11 +7,18 @@ ARCH=$(uname -m)
 echo "Building on $OS for $ARCH"
 
 if [ "$OS" = "darwin" ]; then
-    cargo build --release --target aarch64-apple-darwin
-    cargo build --release --target x86_64-apple-darwin
+    if [ "$ARCH" = "arm64" ]; then
+        cargo build --release
+        cp target/release/libcpgrust.dylib ./libcpgrust-arm64.dylib
 
-    cp target/aarch64-apple-darwin/release/libcpgrust.dylib ./libcpgrust-arm64.dylib
-    cp target/x86_64-apple-darwin/release/libcpgrust.dylib ./libcpgrust-amd64.dylib
+    elif [ "$ARCH" = "x86_64" ]; then
+        cargo build --release
+        cp target/release/libcpgrust.dylib ./libcpgrust-amd64.dylib
+
+    else
+        echo "Unsupported macOS architecture: $ARCH"
+        exit 1
+    fi
 
 elif [ "$OS" = "linux" ]; then
     if [ "$ARCH" = "aarch64" ]; then
