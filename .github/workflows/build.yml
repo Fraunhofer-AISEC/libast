@@ -19,50 +19,78 @@ jobs:
   build:
     strategy:
       matrix:
+        project:
+          - name: go
+            dir: goast
+            prefix: libgoast
+
+          - name: rust
+            dir: rustast
+            prefix: libcpgrust
+
         target:
           - arch: amd64
             os: linux
             runs-on: ubuntu-latest
             ext: so
+
           - arch: arm64
             os: linux
             runs-on: [self-hosted, Linux, ARM64]
             ext: so
+
           - arch: arm64
             os: macos
             runs-on: macos-latest
             ext: dylib
+
           - arch: amd64
             os: macos
             runs-on: macos-latest
             ext: dylib
+
           - arch: amd64
             os: windows
             runs-on: windows-latest
-            ext: dll          
+            ext: dll
     runs-on: ${{ matrix.target.runs-on }}
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Go
+        if: matrix.project.name == 'go'
         uses: actions/setup-go@v5
         with:
           go-version-file: ./goast/go.mod
           cache-dependency-path: ./goast/go.sum
+
+      - name: Setup Rust
+        if: matrix.project.name == 'rust'
+        uses: rust-lang/setup-rust-toolchain@v1
+
       - name: Build
         shell: bash
-        working-directory: goast
+        working-directory: ${{ matrix.project.dir }}
         run: |
           ./build.sh
-      - name: Archive libgoast library (${{ matrix.target.arch }})
+
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: libgoast-${{ matrix.target.arch }}.${{ matrix.target.ext }}
-          path: goast/libgoast-${{ matrix.target.arch }}.${{ matrix.target.ext }}
+          name: ${{ matrix.project.prefix }}-${{ matrix.target.arch }}.${{ matrix.target.ext }}
+          path: ${{ matrix.project.dir }}/${{ matrix.project.prefix }}-${{ matrix.target.arch }}.${{ matrix.target.ext }}
+
   publish:
     runs-on: ubuntu-latest
+
     needs:
       - build
-    if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, 'beta') && !contains(github.ref, 'alpha')
+
+    if: startsWith(github.ref, 'refs/tags/v') &&
+        !contains(github.ref, 'beta') &&
+        !contains(github.ref, 'alpha')
+
     steps:
       - name: Determine Version
         run: |
@@ -79,28 +107,66 @@ jobs:
           fi
           # store version in GitHub environment file
           echo "version=$VERSION" >> $GITHUB_ENV
+
+      #
+      # Go artifacts
+      #
+
       - uses: actions/download-artifact@v4
         with:
           name: libgoast-arm64.dylib
           path: .
+
       - uses: actions/download-artifact@v4
         with:
           name: libgoast-amd64.dylib
           path: .
+
       - uses: actions/download-artifact@v4
         with:
           name: libgoast-amd64.so
           path: .
+
       - uses: actions/download-artifact@v4
         with:
           name: libgoast-arm64.so
           path: .
+
       - uses: actions/download-artifact@v4
         with:
           name: libgoast-amd64.dll
           path: .
+
+      #
+      # Rust artifacts
+      #
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: libcpgrust-arm64.dylib
+          path: .
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: libcpgrust-amd64.dylib
+          path: .
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: libcpgrust-arm64.so
+          path: .
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: libcpgrust-amd64.so
+          path: .
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: libcpgrust-amd64.dll
+          path: .
+
       - name: Create Release
-        id: create_release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -113,3 +179,8 @@ jobs:
             libgoast-amd64.so
             libgoast-arm64.so
             libgoast-amd64.dll
+            libcpgrust-arm64.dylib
+            libcpgrust-amd64.dylib
+            libcpgrust-arm64.so
+            libcpgrust-amd64.so
+            libcpgrust-amd64.dll
