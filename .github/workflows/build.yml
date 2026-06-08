@@ -26,7 +26,7 @@ jobs:
 
           - name: rust
             dir: rustast
-            prefix: libcpgrust
+            prefix: librustast
 
         target:
           - arch: amd64
@@ -143,27 +143,27 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: libcpgrust-arm64.dylib
+          name: librustast-arm64.dylib
           path: .
 
       - uses: actions/download-artifact@v4
         with:
-          name: libcpgrust-amd64.dylib
+          name: librustast-amd64.dylib
           path: .
 
       - uses: actions/download-artifact@v4
         with:
-          name: libcpgrust-arm64.so
+          name: librustast-arm64.so
           path: .
 
       - uses: actions/download-artifact@v4
         with:
-          name: libcpgrust-amd64.so
+          name: librustast-amd64.so
           path: .
 
       - uses: actions/download-artifact@v4
         with:
-          name: libcpgrust-amd64.dll
+          name: librustast-amd64.dll
           path: .
 
       - name: Create Release
@@ -179,8 +179,8 @@ jobs:
             libgoast-amd64.so
             libgoast-arm64.so
             libgoast-amd64.dll
-            libcpgrust-arm64.dylib
-            libcpgrust-amd64.dylib
-            libcpgrust-arm64.so
-            libcpgrust-amd64.so
-            libcpgrust-amd64.dll
+            librustast-arm64.dylib
+            librustast-amd64.dylib
+            librustast-arm64.so
+            librustast-amd64.so
+            librustast-amd64.dll

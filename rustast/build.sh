@@ -9,11 +9,11 @@ echo "Building on $OS for $ARCH"
 if [ "$OS" = "darwin" ]; then
     if [ "$ARCH" = "arm64" ]; then
         cargo build --release
-        cp target/release/libcpgrust.dylib ./libcpgrust-arm64.dylib
+        cp target/release/librustast.dylib ./librustast-arm64.dylib
 
     elif [ "$ARCH" = "x86_64" ]; then
         cargo build --release
-        cp target/release/libcpgrust.dylib ./libcpgrust-amd64.dylib
+        cp target/release/librustast.dylib ./librustast-amd64.dylib
 
     else
         echo "Unsupported macOS architecture: $ARCH"
@@ -23,10 +23,10 @@ if [ "$OS" = "darwin" ]; then
 elif [ "$OS" = "linux" ]; then
     if [ "$ARCH" = "aarch64" ]; then
         cargo build --release
-        cp target/release/libcpgrust.so ./libcpgrust-arm64.so
+        cp target/release/librustast.so ./librustast-arm64.so
     elif [ "$ARCH" = "x86_64" ]; then
         cargo build --release
-        cp target/release/libcpgrust.so ./libcpgrust-amd64.so
+        cp target/release/librustast.so ./librustast-amd64.so
     else
         echo "Unsupported Linux architecture: $ARCH"
         exit 1
@@ -34,7 +34,7 @@ elif [ "$OS" = "linux" ]; then
 
 elif [[ "$OS" == mingw64* ]] || [[ "$OS" == msys* ]]; then
     cargo build --release
-    cp target/release/cpgrust.dll ./libcpgrust-amd64.dll
+    cp target/release/rustast.dll ./librustast-amd64.dll
 
 else
     echo "Unsupported OS"
