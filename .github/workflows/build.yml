@@ -45,11 +45,6 @@ jobs:
             ext: dylib
 
           - arch: amd64
-            os: macos
-            runs-on: macos-latest
-            ext: dylib
-
-          - arch: amd64
             os: windows
             runs-on: windows-latest
             ext: dll
@@ -68,6 +63,8 @@ jobs:
       - name: Setup Rust
         if: matrix.project.name == 'rust'
         uses: dtolnay/rust-toolchain@stable
+        with:
+          target: x86_64-apple-darwin,aarch64-apple-darwin
 
       - name: Build
         shell: bash
