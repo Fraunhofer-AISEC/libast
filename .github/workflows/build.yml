@@ -45,6 +45,11 @@ jobs:
             ext: dylib
 
           - arch: amd64
+            os: macos
+            runs-on: macos-latest
+            ext: dylib
+
+          - arch: amd64
             os: windows
             runs-on: windows-latest
             ext: dll
