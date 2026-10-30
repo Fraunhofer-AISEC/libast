@@ -24,3 +24,10 @@ go.work
 
 *.h
 *.dylib
+
+# .NET build output
+bin/
+obj/
+
+# IDE settings
+.idea/

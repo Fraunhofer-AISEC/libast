@@ -28,6 +28,10 @@ jobs:
             dir: rustast
             prefix: librustast
 
+          - name: csharp
+            dir: csharpast
+            prefix: libcsharpast
+
         target:
           - arch: amd64
             os: linux
@@ -70,6 +74,12 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           target: x86_64-apple-darwin,aarch64-apple-darwin
+
+      - name: Setup .NET
+        if: matrix.project.name == 'csharp'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0"
 
       - name: Build
         shell: bash
@@ -168,6 +178,34 @@ jobs:
           name: librustast-amd64.dll
           path: .
 
+      #
+      # C# artifacts
+      #
+      - uses: actions/download-artifact@v4
+        with:
+          name: libcsharpast-arm64.dylib
+          path: .
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: libcsharpast-amd64.dylib
+          path: .
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: libcsharpast-arm64.so
+          path: .
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: libcsharpast-amd64.so
+          path: .
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: libcsharpast-amd64.dll
+          path: .
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -186,3 +224,8 @@ jobs:
             librustast-arm64.so
             librustast-amd64.so
             librustast-amd64.dll
+            libcsharpast-arm64.dylib
+            libcsharpast-amd64.dylib
+            libcsharpast-arm64.so
+            libcsharpast-amd64.so
+            libcsharpast-amd64.dll
