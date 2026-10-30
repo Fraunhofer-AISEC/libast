@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
@@ -8,33 +9,33 @@ namespace CSharpAst;
 
 public static class Library
 {
-    private static readonly Dictionary<IntPtr, CSharpSyntaxNode> Nodes = new();
-    private static int _nextId = 1;
+    // The handle tables are concurrent, since the CPG may parse several files in parallel.
+    private static readonly ConcurrentDictionary<IntPtr, CSharpSyntaxNode> Nodes = new();
+    private static int _lastId;
 
     // Trivia, such as comments, is a struct in Roslyn and not a syntax node. It shares its handles
     // with [Nodes].
-    private static readonly Dictionary<IntPtr, SyntaxTrivia> Trivia = new();
+    private static readonly ConcurrentDictionary<IntPtr, SyntaxTrivia> Trivia = new();
 
     // The handles of the comments of each compilation unit, in the order of the source.
-    private static readonly Dictionary<IntPtr, List<IntPtr>> Comments = new();
+    private static readonly ConcurrentDictionary<IntPtr, List<IntPtr>> Comments = new();
 
     private static List<IntPtr> CommentsOf(IntPtr handlePtr)
     {
-        if (!Comments.TryGetValue(handlePtr, out var comments))
-        {
-            comments = Nodes[handlePtr]
-                .DescendantTrivia()
-                .Where(trivia =>
-                    trivia.IsKind(SyntaxKind.SingleLineCommentTrivia)
-                    || trivia.IsKind(SyntaxKind.MultiLineCommentTrivia)
-                    || trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia)
-                    || trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia)
-                )
-                .Select(Register)
-                .ToList();
-            Comments[handlePtr] = comments;
-        }
-        return comments;
+        return Comments.GetOrAdd(
+            handlePtr,
+            ptr =>
+                Nodes[ptr]
+                    .DescendantTrivia()
+                    .Where(trivia =>
+                        trivia.IsKind(SyntaxKind.SingleLineCommentTrivia)
+                        || trivia.IsKind(SyntaxKind.MultiLineCommentTrivia)
+                        || trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia)
+                        || trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia)
+                    )
+                    .Select(Register)
+                    .ToList()
+        );
     }
 
     private static FileLinePositionSpan LineSpanOf(IntPtr handlePtr)
@@ -46,23 +47,16 @@ public static class Library
 
     private static IntPtr Register(CSharpSyntaxNode node)
     {
-        var ptr = new IntPtr(_nextId++);
+        var ptr = new IntPtr(Interlocked.Increment(ref _lastId));
         Nodes[ptr] = node;
         return ptr;
     }
 
     private static IntPtr Register(SyntaxTrivia trivia)
     {
-        var ptr = new IntPtr(_nextId++);
+        var ptr = new IntPtr(Interlocked.Increment(ref _lastId));
         Trivia[ptr] = trivia;
         return ptr;
-    }
-
-    private static void PrintASTDump(SyntaxNode node, int indent = 2)
-    {
-        Console.Error.WriteLine(new string(' ', indent) + node.GetType().Name + " (Kind: " + ((CSharpSyntaxNode)node).Kind() + "): " + node.ToString().Split('\n')[0].Trim());
-        foreach (var child in node.ChildNodes())
-            PrintASTDump(child, indent + 1);
     }
 
     [UnmanagedCallersOnly(EntryPoint = "CSharpRoslynSyntaxTreeParseText")]
@@ -73,7 +67,6 @@ public static class Library
         var source = Marshal.PtrToStringUTF8(sourcePtr);
         // Roslyn parses the source code -> AST
         var root = (CSharpSyntaxNode)CSharpSyntaxTree.ParseText(source).GetRoot();
-        //        PrintASTDump(root);
         return Register(root);
     }
 

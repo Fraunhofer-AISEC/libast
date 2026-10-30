@@ -19,7 +19,7 @@ platform. It needs the toolchain of the respective language:
 
 - `goast`: Go (see `goast/go.mod` for the version) and a C compiler for cgo
 - `rustast`: a Rust toolchain
-- `csharpast`: the .NET 8 SDK and, on Linux, `clang` and the zlib development
+- `csharpast`: the .NET 10 SDK and, on Linux, `clang` and the zlib development
   headers that NativeAOT needs
 
 ```bash

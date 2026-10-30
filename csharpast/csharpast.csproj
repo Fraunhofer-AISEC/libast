@@ -1,11 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <OutputType>Library</OutputType>
     <AssemblyName>csharpast</AssemblyName>
     <!-- Compile ahead-of-time into a shared library with C exports, see Library.cs -->
     <PublishAot>true</PublishAot>
     <NativeLib>Shared</NativeLib>
+    <!-- Only the invariant culture is used, so the library does not need ICU on the host -->
+    <InvariantGlobalization>true</InvariantGlobalization>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>

@@ -11,7 +11,7 @@ echo "Building on $HOST_OS for $ARCH"
 # Publishes the library ahead-of-time for the .NET runtime identifier $1 and copies it to $2
 publish() {
     dotnet publish -c Release -r "$1"
-    cp "bin/Release/net8.0/$1/publish/$3" "$2"
+    cp "bin/Release/net10.0/$1/publish/$3" "$2"
 }
 
 if [ "$HOST_OS" = "darwin" ]; then

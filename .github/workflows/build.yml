@@ -79,7 +79,7 @@ jobs:
         if: matrix.project.name == 'csharp'
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0"
+          dotnet-version: "10.0"
         env:
           # The default location /usr/share/dotnet is not writable on the self-hosted runner
           DOTNET_INSTALL_DIR: ~/.dotnet
