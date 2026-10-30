@@ -80,6 +80,9 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0"
+        env:
+          # The default location /usr/share/dotnet is not writable on the self-hosted runner
+          DOTNET_INSTALL_DIR: ~/.dotnet
 
       - name: Build
         shell: bash
