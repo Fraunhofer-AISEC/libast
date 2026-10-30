@@ -62,7 +62,7 @@ public static class Library
     {
         Console.Error.WriteLine(new string(' ', indent) + node.GetType().Name + " (Kind: " + ((CSharpSyntaxNode)node).Kind() + "): " + node.ToString().Split('\n')[0].Trim());
         foreach (var child in node.ChildNodes())
-        PrintASTDump(child, indent + 1);
+            PrintASTDump(child, indent + 1);
     }
 
     [UnmanagedCallersOnly(EntryPoint = "CSharpRoslynSyntaxTreeParseText")]
@@ -73,7 +73,7 @@ public static class Library
         var source = Marshal.PtrToStringUTF8(sourcePtr);
         // Roslyn parses the source code -> AST
         var root = (CSharpSyntaxNode)CSharpSyntaxTree.ParseText(source).GetRoot();
-//        PrintASTDump(root);
+        //        PrintASTDump(root);
         return Register(root);
     }
 
@@ -730,7 +730,7 @@ public static class Library
     public static IntPtr GetReturnStatementExpression(IntPtr handlePtr)
     {
         var expression = ((ReturnStatementSyntax)Nodes[handlePtr]).Expression;
-        if(expression != null)
+        if (expression != null)
         {
             return Register(expression);
         }
