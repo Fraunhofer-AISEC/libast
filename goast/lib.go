@@ -964,3 +964,27 @@ func item[T any, S any](ptr unsafe.Pointer, i int, fieldFunc func(t T) []S) unsa
 
 	return save(fieldFunc(t)[i])
 }
+
+//export GetSelectStmtBody
+func GetSelectStmtBody(ptr unsafe.Pointer) unsafe.Pointer {
+	stmt := restore[*ast.SelectStmt](ptr)
+	return save(stmt.Body)
+}
+
+//export GetCommClauseComm
+func GetCommClauseComm(ptr unsafe.Pointer) unsafe.Pointer {
+	stmt := restore[*ast.CommClause](ptr)
+	return save(stmt.Comm)
+}
+
+//export GetNumCommClauseBody
+func GetNumCommClauseBody(ptr unsafe.Pointer) C.int {
+	stmt := restore[*ast.CommClause](ptr)
+	return C.int(len(stmt.Body))
+}
+
+//export GetCommClauseBody
+func GetCommClauseBody(ptr unsafe.Pointer, i int) unsafe.Pointer {
+	stmt := restore[*ast.CommClause](ptr)
+	return save(stmt.Body[i])
+}
